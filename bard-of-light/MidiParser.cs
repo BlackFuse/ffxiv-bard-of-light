@@ -13,6 +13,7 @@ namespace bard_of_light {
         public int octave;
         public long time;
         public long length;
+        public long velicity;
     }
 
 
@@ -32,16 +33,29 @@ namespace bard_of_light {
 
         public List<myNote> getAllNotes() {
             List<myNote> notes = new List<myNote>();
+            TempoMap tempoMap = midiFile.GetTempoMap();
+
+            MetricTimeSpan metricTime;
+            MetricTimeSpan musicalLength;
+
+            var chunks = midiFile.GetTrackChunks();
             foreach (Note note in midiFile.GetNotes()) {
+                metricTime = note.TimeAs<MetricTimeSpan>(tempoMap);
+                musicalLength = note.LengthAs<MetricTimeSpan>(tempoMap);
                 myNote n = new myNote() {
                     name = note.NoteName.ToString(),
                     octave = note.Octave,
-                    time = note.Time,
-                    length = note.Length
+                    time = metricTime.TotalMicroseconds / 1000,
+                    length = musicalLength.TotalMicroseconds / 1000,
+                    velicity = note.Velocity
                 };
-                string str = string.Format("Name: {0}, Octave: {1}, Time: {2}, Length: {3} \r\n", n.name, n.octave, n.time, n.length);
+                metricTime = note.TimeAs<MetricTimeSpan>(tempoMap);
+
+                //string str = string.Format("Name: {0}, Octave: {1}, Time: {2}, Length: {3} \r\n", n.name, n.octave, n.time, n.length);
+
                 notes.Add(n);
             }
+            
             return notes;
         }
 

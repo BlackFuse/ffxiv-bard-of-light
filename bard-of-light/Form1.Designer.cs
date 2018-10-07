@@ -24,12 +24,12 @@
         /// </summary>
         private void InitializeComponent() {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.OpenButton = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.OpenButton = new System.Windows.Forms.Button();
             this.noteBox = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.StartButton = new System.Windows.Forms.Button();
             this.StopButton = new System.Windows.Forms.Button();
+            this.StartButton = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.groupBox1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -46,6 +46,14 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Setting";
             // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(107, 73);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(308, 20);
+            this.comboBox1.TabIndex = 1;
+            // 
             // OpenButton
             // 
             this.OpenButton.Location = new System.Drawing.Point(424, 66);
@@ -56,19 +64,12 @@
             this.OpenButton.UseVisualStyleBackColor = true;
             this.OpenButton.Click += new System.EventHandler(this.OpenButton_Click);
             // 
-            // comboBox1
-            // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(107, 73);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(308, 20);
-            this.comboBox1.TabIndex = 1;
-            // 
             // noteBox
             // 
             this.noteBox.Location = new System.Drawing.Point(0, 111);
             this.noteBox.Multiline = true;
             this.noteBox.Name = "noteBox";
+            this.noteBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.noteBox.Size = new System.Drawing.Size(554, 285);
             this.noteBox.TabIndex = 1;
             // 
@@ -81,15 +82,6 @@
             this.panel1.Size = new System.Drawing.Size(554, 33);
             this.panel1.TabIndex = 2;
             // 
-            // StartButton
-            // 
-            this.StartButton.Location = new System.Drawing.Point(0, 0);
-            this.StartButton.Name = "StartButton";
-            this.StartButton.Size = new System.Drawing.Size(272, 33);
-            this.StartButton.TabIndex = 0;
-            this.StartButton.Text = "开始";
-            this.StartButton.UseVisualStyleBackColor = true;
-            // 
             // StopButton
             // 
             this.StopButton.Location = new System.Drawing.Point(271, 0);
@@ -98,6 +90,17 @@
             this.StopButton.TabIndex = 1;
             this.StopButton.Text = "结束";
             this.StopButton.UseVisualStyleBackColor = true;
+            this.StopButton.Click += new System.EventHandler(this.StopButton_Click);
+            // 
+            // StartButton
+            // 
+            this.StartButton.Location = new System.Drawing.Point(0, 0);
+            this.StartButton.Name = "StartButton";
+            this.StartButton.Size = new System.Drawing.Size(272, 33);
+            this.StartButton.TabIndex = 0;
+            this.StartButton.Text = "开始";
+            this.StartButton.UseVisualStyleBackColor = true;
+            this.StartButton.Click += new System.EventHandler(this.StartButton_Click);
             // 
             // openFileDialog1
             // 
