@@ -14,6 +14,7 @@ namespace bard_of_light {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
+            //Application.Run(new PlayForm());
         }
     }
 }

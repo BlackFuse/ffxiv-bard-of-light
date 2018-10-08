@@ -12,8 +12,9 @@ namespace bard_of_light {
         public string name;
         public int octave;
         public long time;
-        public long length;
-        public long velicity;
+        public int length;
+        public long velocity;
+        public int noteNumber;
     }
 
 
@@ -46,8 +47,9 @@ namespace bard_of_light {
                     name = note.NoteName.ToString(),
                     octave = note.Octave,
                     time = metricTime.TotalMicroseconds / 1000,
-                    length = musicalLength.TotalMicroseconds / 1000,
-                    velicity = note.Velocity
+                    length = (int)(musicalLength.TotalMicroseconds / 1000),
+                    velocity = note.Velocity,
+                    noteNumber = note.NoteNumber
                 };
                 metricTime = note.TimeAs<MetricTimeSpan>(tempoMap);
 

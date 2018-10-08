@@ -18,6 +18,17 @@ namespace bard_of_light {
         private System.Timers.Timer timer;
         private List<myNote> notes;
         private WindowsMediaPlayer player;
+        private Form playForm;
+        private Dictionary<string, int> noteOffset = new Dictionary<string, int>()
+        {
+            {"C", 0},
+            {"D", 1},
+            {"E", 2},
+            {"F", 3},
+            {"G", 4},
+            {"A", 5},
+            {"B", 6},
+        };
 
         public Form1() {
             InitializeComponent();
@@ -32,17 +43,42 @@ namespace bard_of_light {
                 player.controls.stop();
                 notes = midiParser.getAllNotes();
                 editNote("");
-                foreach (myNote note in notes) {
-                    string str = string.Format("Name: {0}, Octave: {1}, Time: {2}, Length: {3}, Velocity:{4} \r\n"
-                        , note.name, note.octave, note.time, note.length, note.velicity);
-                    addToNote(str);
-                }
+                addToNote(getFullSheet());
                 finishTime = notes.Last().time + notes.Last().length;
-                addToNote(finishTime.ToString() + ", rate: " + player.settings.rate + "\r\n");
-                addToNote(notes.Count + "\r\n");
+                //addToNote(finishTime.ToString() + ", rate: " + player.settings.rate + "\r\n");
+                //addToNote(notes.Count + "\r\n");
                 
-
             }
+        }
+
+        private string getFullSheet() {
+            string ans = "";
+            foreach (myNote note in notes) {
+                string str = string.Format("Name: {0}, Number: {5}, Octave: {1}, Time: {2}, Length: {3}, Velocity:{4} \r\n"
+                    , note.name, note.octave, note.time, note.length, note.velocity, note.noteNumber);
+                ans += str;
+            }
+            return ans;
+        }
+
+        private string getSimpleSheet() {
+            string ans = "";
+            long lastTime = -1;
+            foreach (myNote note in notes) {
+                if (lastTime != -1 && lastTime == note.time) {
+                    continue;
+                }
+                string str = string.Format("{0}", noteOffset[note.name[0].ToString()] + 1);
+                if (note.name.Length > 1 && note.name[1].ToString() == "S")
+                    str = str + "#";
+                if (note.octave == Setting.baseOctave + 1)
+                    str = "+" + str;
+                if (note.octave == Setting.baseOctave - 1)
+                    str = "-" + str;
+                ans += str;
+                lastTime = note.time;
+            }
+            return ans;
         }
 
 
@@ -51,7 +87,8 @@ namespace bard_of_light {
         }
 
         private void addToNote(string str) {
-            this.noteBox.Text =  str + this.noteBox.Text;
+            //this.noteBox.Text =  str + this.noteBox.Text;
+            this.noteBox.Text = this.noteBox.Text + str;
         }
 
         private void editNote(string str) {
@@ -59,7 +96,10 @@ namespace bard_of_light {
         }
 
         private void StartButton_Click(object sender, EventArgs e) {
-            Form playForm = new PlayForm();
+            if (playForm != null) {
+                playForm.Close();
+            }
+            playForm = new PlayForm(this.notes);
             playForm.Show();
         }
 
