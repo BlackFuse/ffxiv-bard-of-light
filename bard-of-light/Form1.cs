@@ -18,7 +18,7 @@ namespace bard_of_light {
         private System.Timers.Timer timer;
         private List<myNote> notes;
         private WindowsMediaPlayer player;
-        private Form playForm;
+        private PlayForm playForm;
         private Dictionary<string, int> noteOffset = new Dictionary<string, int>()
         {
             {"C", 0},
@@ -42,12 +42,22 @@ namespace bard_of_light {
                 player.URL = path;
                 player.controls.stop();
                 notes = midiParser.getAllNotes();
+                deleteNotInRangeNotes();
                 editNote("");
                 addToNote(getFullSheet());
                 finishTime = notes.Last().time + notes.Last().length;
-                //addToNote(finishTime.ToString() + ", rate: " + player.settings.rate + "\r\n");
-                //addToNote(notes.Count + "\r\n");
+                addToNote(finishTime.ToString() + ", rate: " + player.settings.rate + "\r\n");
+                addToNote(notes.Count + "\r\n");
                 
+            }
+        }
+
+        private void deleteNotInRangeNotes(){
+            foreach (myNote note in notes)
+            {
+                if (note.octave < Setting.baseOctave - 1 || note.octave > Setting.baseOctave + 1){
+                    notes.Remove(note);
+                }
             }
         }
 
@@ -144,6 +154,7 @@ namespace bard_of_light {
             string str = string.Format("T:{4}, Name: {0}, Octave: {1},Length: {3} \r\n"
                     , note.name, note.octave, note.length, player.controls.currentPosition);
             addToNote(str);
+            playForm.invokeNote(note);
         }
     }
 }
