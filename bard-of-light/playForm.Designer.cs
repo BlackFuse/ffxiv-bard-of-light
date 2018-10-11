@@ -29,7 +29,8 @@
             // 
             // pictureBox
             // 
-            this.pictureBox.Location = new System.Drawing.Point(-6, -302);
+            this.pictureBox.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.pictureBox.Location = new System.Drawing.Point(751, 12);
             this.pictureBox.Name = "pictureBox";
             this.pictureBox.Size = new System.Drawing.Size(800, 605);
             this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;

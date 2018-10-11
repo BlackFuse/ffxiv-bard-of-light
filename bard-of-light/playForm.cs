@@ -17,23 +17,28 @@ namespace bard_of_light {
 
         private struct playingNote {
             public myNote note;
-            public int currentPosY;
             public int posX;
             public bool onScreen;
             public Color color;
+            public double joinedTime;
         }
 
         //private List<playingNote> playingNotes = new List<playingNote>();
         private List<playingNote> onScreenNotes = new List<playingNote>();
 
-        private Dictionary<string, int> noteOffset = new Dictionary<string, int>()
+        private Dictionary<string, double> noteOffset = new Dictionary<string, double>()
         {
             {"C", 0},
+            {"CSharp", 0.6},
             {"D", 1},
+            {"DSharp", 1.6},
             {"E", 2},
             {"F", 3},
+            {"FSharp", 3.6},
             {"G", 4},
+            {"GSharp", 4.6},
             {"A", 5},
+            {"ASharp", 5.6},
             {"B", 6},
         };
 
@@ -41,7 +46,7 @@ namespace bard_of_light {
             InitializeComponent();
             this.BackColor = Color.LimeGreen;
             this.TransparencyKey = Color.LimeGreen;
-            this.TopMost = true;
+            //this.TopMost = true;
             initPictureBox();
             //playingNotes = new List<playingNote>();
             //foreach (myNote note in notes) {
@@ -61,35 +66,39 @@ namespace bard_of_light {
             Console.WriteLine(this.pictureBox.Size.ToString());
         }
 
-
         private void pictureBox_Paint(object sender, PaintEventArgs e) {
+            //Console.WriteLine("painted" + counter.ToString());
+            //counter++;
+            e.Graphics.Clear(Color.LimeGreen);
             foreach (playingNote note in onScreenNotes) {
                 e.Graphics.FillRectangle(new SolidBrush(note.color),
-                    new Rectangle(note.posX, note.currentPosY, Setting.blockWidth, (int)note.note.length));
-                increasePosY(note);
-            }
+                    new Rectangle(note.posX, (int)((Form1.currentPlayedTime - note.joinedTime)*Setting.blockMovingSpeed), Setting.blockWidth, (int)(note.note.length * Setting.blockHeightScale)));
 
-            while (onScreenNotes[0].currentPosY > Setting.blockMaxHeight)
+            }
+            if (onScreenNotes.Count < 1) return;
+            while ((Form1.currentPlayedTime - onScreenNotes[0].joinedTime) * Setting.blockMovingSpeed > Setting.blockMaxHeight)
             {
                 onScreenNotes.RemoveAt(0);
             }
         }
 
-        public void invokeNote(myNote in_note) {
-            playingNote newNote = new playingNote()
-            {
-                note = in_note,
-                currentPosY = 0,
-                posX = Setting.middlePosX + (noteOffset[in_note.name] + 7 * (in_note.octave - Setting.baseOctave)) * Setting.blockWidth,
-                onScreen = false,
-                color = Color.White
-            };
-            this.onScreenNotes.Add(newNote);
-
+        public void refresh() {
+            pictureBox.Refresh();
         }
 
-        private void increasePosY(playingNote note){
-            note.currentPosY += Setting.blockMovingSpeed;
+
+        public void invokeNote(myNote in_note) {
+            playingNote newNote = new playingNote() {
+                note = in_note,
+                posX =(int)(Setting.middlePosX + (noteOffset[in_note.name] + 7 * (in_note.octave - Setting.baseOctave)) * Setting.blockWidth),
+                onScreen = false,
+                color = in_note.name.Length > 2 ? this.blackBlock : this.whiteBlock,
+                joinedTime = Form1.currentPlayedTime,
+            };
+            Console.WriteLine(String.Format("middle pos is:{0}", Setting.middlePosX));
+            Console.WriteLine(String.Format("{0}{3} posX is: {1}, offset: {2}",newNote.note.name,newNote.posX, (noteOffset[in_note.name] + 7 * (in_note.octave - Setting.baseOctave)),in_note.octave));
+            this.onScreenNotes.Add(newNote);
+            //pictureBox.Refresh();
         }
 
         private void playForm_KeyDown(object sender, KeyEventArgs e)
@@ -104,13 +113,12 @@ namespace bard_of_light {
                 //May have better way to find pressed block
                 foreach (playingNote note in onScreenNotes)
                 {
-                    string str = note.note.name + (note.note.octave - Setting.baseOctave).ToString();
+                    string str = note.note.name + (note.note.octave - Setting.baseOctave + 1).ToString();
                     if (Setting.userKeys[str] == key){
                         ChangeNoteColor(note, this.pressedColor);
                         break;
                     }
                 }
-
             }
         }
 
@@ -130,6 +138,7 @@ namespace bard_of_light {
                     string str = note.note.name + (note.note.octave - Setting.baseOctave).ToString();
                     if (Setting.userKeys[str] == key)
                     {
+                        
                         ChangeNoteColor(note, note.note.name.Length > 2 ? this.blackBlock : this.whiteBlock );
                         break;
                     }

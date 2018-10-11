@@ -19,6 +19,7 @@ namespace bard_of_light {
         private List<myNote> notes;
         private WindowsMediaPlayer player;
         private PlayForm playForm;
+        public static double currentPlayedTime;
         private Dictionary<string, int> noteOffset = new Dictionary<string, int>()
         {
             {"C", 0},
@@ -53,12 +54,15 @@ namespace bard_of_light {
         }
 
         private void deleteNotInRangeNotes(){
+            List<myNote> temp = new List<myNote>();
             foreach (myNote note in notes)
             {
                 if (note.octave < Setting.baseOctave - 1 || note.octave > Setting.baseOctave + 1){
-                    notes.Remove(note);
+                    continue;
                 }
+                temp.Add(note);
             }
+            notes = temp;
         }
 
         private string getFullSheet() {
@@ -97,8 +101,8 @@ namespace bard_of_light {
         }
 
         private void addToNote(string str) {
-            //this.noteBox.Text =  str + this.noteBox.Text;
-            this.noteBox.Text = this.noteBox.Text + str;
+            this.noteBox.Text = str + this.noteBox.Text;
+            //this.noteBox.Text = this.noteBox.Text + str;
         }
 
         private void editNote(string str) {
@@ -111,27 +115,27 @@ namespace bard_of_light {
             }
             playForm = new PlayForm(this.notes);
             playForm.Show();
+
+            this.timer = new System.Timers.Timer();
+            timer.Elapsed += new System.Timers.ElapsedEventHandler(timer_Tick);
+            timer.Interval = Setting.frameTime;
+            currentNoteIndex = 0;
+            player.controls.play();
+            timer.Start();
+            editNote("");
+            this.noteBox.Text = "";
         }
 
         private long finishTime;
         private int currentNoteIndex;
 
         private void StopButton_Click(object sender, EventArgs e) {
-            this.timer = new System.Timers.Timer();
-            timer.Elapsed += new System.Timers.ElapsedEventHandler(timer_Tick);
-            timer.Interval = Setting.frameTime;
-            currentNoteIndex = 0;
-            timer.Start();
             
-            player.controls.play();
-            
-            this.noteBox.Text = "";
-            //player.controls.currentPosition;
 
         }
 
         private void timer_Tick(object sender, System.Timers.ElapsedEventArgs e) {
-
+            currentPlayedTime = player.controls.currentPosition;
             if (player.controls.currentPosition * 1000 >= finishTime + 2000) {
                 timer.Stop();
                 player.controls.stop();
@@ -143,15 +147,22 @@ namespace bard_of_light {
                 {
                     produceNewNote(notes[currentNoteIndex]);
                     currentNoteIndex++;
-                    //StopButton.Text = counter.ToString();
-                    StopButton.Text = player.controls.currentItem.durationString;
+                    StopButton.Text = player.controls.currentPosition.ToString();
+                    //StartButton.Text = player.controls.currentItem.durationString;
+                    playForm.refresh();
                 });
                 this.BeginInvoke(mi);
             }
+
+            MethodInvoker invoker = new MethodInvoker(() =>
+            {
+                playForm.refresh();
+            });
+            this.BeginInvoke(invoker);
         }
 
         private void produceNewNote(myNote note) {
-            string str = string.Format("T:{4}, Name: {0}, Octave: {1},Length: {3} \r\n"
+            string str = string.Format("T:{3}, Name: {0}, Octave: {1},Length: {2} \r\n"
                     , note.name, note.octave, note.length, player.controls.currentPosition);
             addToNote(str);
             playForm.invokeNote(note);
