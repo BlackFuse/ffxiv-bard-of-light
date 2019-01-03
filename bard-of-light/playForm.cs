@@ -70,15 +70,36 @@ namespace bard_of_light {
             //Console.WriteLine("painted" + counter.ToString());
             //counter++;
             e.Graphics.Clear(Color.LimeGreen);
+            //Console.WriteLine(String.Format("speed:{0}", Setting.blockMovingSpeed));
             foreach (playingNote note in onScreenNotes) {
+                //Console.WriteLine(String.Format("note:{0}, pos:{1}, time used:{2}",
+                //    note.note.name,
+                //    (int)((Form1.currentPlayedTime - note.joinedTime) * Setting.blockMovingSpeed - (int)(note.note.length * Setting.blockHeightScale)),
+                //    (Form1.currentPlayedTime - note.joinedTime))
+                //    );
+                int posY = (int)((Form1.currentPlayedTime - note.joinedTime) * Setting.blockMovingSpeed - (int)(note.note.length * Setting.blockHeightScale));
+                
                 e.Graphics.FillRectangle(new SolidBrush(note.color),
-                    new Rectangle(note.posX, (int)((Form1.currentPlayedTime - note.joinedTime)*Setting.blockMovingSpeed), Setting.blockWidth, (int)(note.note.length * Setting.blockHeightScale)));
+                    new Rectangle(note.posX, 
+                    posY,
+                    Setting.blockWidth,
+                    (int)(note.note.length * Setting.blockHeightScale))
+                );
+                using (Font myFont = new Font("Arial", 7)) {
+                    e.Graphics.DrawString(note.note.name, myFont, Brushes.Blue, new Point(note.posX + 10, posY + 10));
+                }
 
             }
             if (onScreenNotes.Count < 1) return;
-            while ((Form1.currentPlayedTime - onScreenNotes[0].joinedTime) * Setting.blockMovingSpeed > Setting.blockMaxHeight)
+            while ((Form1.currentPlayedTime - onScreenNotes[0].joinedTime) * Setting.blockMovingSpeed - 100> Setting.blockMaxHeight)
             {
+                //Console.WriteLine(String.Format("note deleted:{0}, pos:{1}, time used:{2}",
+                //    onScreenNotes[0].note.name,
+                //    (int)((Form1.currentPlayedTime - onScreenNotes[0].joinedTime) * Setting.blockMovingSpeed - (int)(onScreenNotes[0].note.length * Setting.blockHeightScale)),
+                //    (Form1.currentPlayedTime - onScreenNotes[0].joinedTime))
+                //    );
                 onScreenNotes.RemoveAt(0);
+                if (onScreenNotes.Count < 1) break;
             }
         }
 
@@ -90,13 +111,13 @@ namespace bard_of_light {
         public void invokeNote(myNote in_note) {
             playingNote newNote = new playingNote() {
                 note = in_note,
-                posX =(int)(Setting.middlePosX + (noteOffset[in_note.name] + 7 * (in_note.octave - Setting.baseOctave)) * Setting.blockWidth),
+                posX =(int)(Setting.middlePosX + (noteOffset[in_note.name]-3 + 7 * (in_note.octave - Setting.baseOctave)) * Setting.blockWidth),
                 onScreen = false,
                 color = in_note.name.Length > 2 ? this.blackBlock : this.whiteBlock,
                 joinedTime = Form1.currentPlayedTime,
             };
-            Console.WriteLine(String.Format("middle pos is:{0}", Setting.middlePosX));
-            Console.WriteLine(String.Format("{0}{3} posX is: {1}, offset: {2}",newNote.note.name,newNote.posX, (noteOffset[in_note.name] + 7 * (in_note.octave - Setting.baseOctave)),in_note.octave));
+            //Console.WriteLine(String.Format("middle pos is:{0}", Setting.middlePosX));
+            //Console.WriteLine(String.Format("note {0}{3} added, posX is: {1}, offset: {2}",newNote.note.name,newNote.posX, (noteOffset[in_note.name] + 7 * (in_note.octave - Setting.baseOctave)),in_note.octave));
             this.onScreenNotes.Add(newNote);
             //pictureBox.Refresh();
         }

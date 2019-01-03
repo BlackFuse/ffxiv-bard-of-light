@@ -20,6 +20,8 @@ namespace bard_of_light {
         private WindowsMediaPlayer player;
         private PlayForm playForm;
         public static double currentPlayedTime;
+        
+        private bool started;
         private Dictionary<string, int> noteOffset = new Dictionary<string, int>()
         {
             {"C", 0},
@@ -33,6 +35,7 @@ namespace bard_of_light {
 
         public Form1() {
             InitializeComponent();
+            Console.WriteLine(string.Format("windows height:{0}, block max height:{1}", Setting.windowHeight,Setting.blockMaxHeight));
         }
 
         private void OpenButton_Click(object sender, EventArgs e) {
@@ -110,17 +113,16 @@ namespace bard_of_light {
         }
 
         private void StartButton_Click(object sender, EventArgs e) {
-            if (playForm != null) {
-                playForm.Close();
-            }
             playForm = new PlayForm(this.notes);
             playForm.Show();
-
             this.timer = new System.Timers.Timer();
             timer.Elapsed += new System.Timers.ElapsedEventHandler(timer_Tick);
             timer.Interval = Setting.frameTime;
             currentNoteIndex = 0;
-            player.controls.play();
+            //player.controls.play();
+            //player.controls.pause();
+            currentPlayedTime = -Setting.playDelay / 1000;
+            started = false;
             timer.Start();
             editNote("");
             this.noteBox.Text = "";
@@ -130,24 +132,37 @@ namespace bard_of_light {
         private int currentNoteIndex;
 
         private void StopButton_Click(object sender, EventArgs e) {
-            
-
+            if (playForm != null) {
+                playForm.Close();
+                return;
+            }
         }
 
+        
         private void timer_Tick(object sender, System.Timers.ElapsedEventArgs e) {
-            currentPlayedTime = player.controls.currentPosition;
-            if (player.controls.currentPosition * 1000 >= finishTime + 2000) {
+            if (started) currentPlayedTime = player.controls.currentPosition;
+            //finish
+            if (player.controls.currentPosition * 1000 >= finishTime + Setting.playDelay + 2000) {
                 timer.Stop();
                 player.controls.stop();
+                started = false;
             }
-               
+            //before really start
             
-            if (currentNoteIndex < notes.Count && notes[currentNoteIndex].time <= player.controls.currentPosition * 1000.0) {
+
+
+            if (currentNoteIndex < notes.Count && notes[currentNoteIndex].time <= (currentPlayedTime * 1000 + Setting.playDelay)) {
                 MethodInvoker mi = new MethodInvoker(() =>
                 {
+                    if (notes[currentNoteIndex].time > (currentPlayedTime * 1000 + Setting.playDelay)) return;
+                    //Console.WriteLine(String.Format("note added on note.time:{0}, currentPlayedTime:{1}, cc:{2}, delay:{3}", 
+                    //    notes[currentNoteIndex].time,
+                    //    currentPlayedTime*1000, 
+                    //    (currentPlayedTime * 1000 + Setting.playDelay),
+                    //    Setting.playDelay));
                     produceNewNote(notes[currentNoteIndex]);
                     currentNoteIndex++;
-                    StopButton.Text = player.controls.currentPosition.ToString();
+                    StopButton.Text = currentPlayedTime.ToString();
                     //StartButton.Text = player.controls.currentItem.durationString;
                     playForm.refresh();
                 });
@@ -159,11 +174,20 @@ namespace bard_of_light {
                 playForm.refresh();
             });
             this.BeginInvoke(invoker);
+
+            //Console.WriteLine(String.Format("current played time:{0}, frameTime:{1}, current note {2} time is:{3}", currentPlayedTime, Setting.frameTime,currentNoteIndex, notes[currentNoteIndex].time));
+            //Console.WriteLine(String.Format("delay:{0}" , Setting.playDelay));
+            currentPlayedTime =Math.Round(currentPlayedTime + Setting.frameTime / 1000.0f , 3);
+            if (currentPlayedTime >= 0 && !started) {
+                player.controls.play();
+                started = true;
+                Console.WriteLine(String.Format("music starts"));
+            }
         }
 
         private void produceNewNote(myNote note) {
             string str = string.Format("T:{3}, Name: {0}, Octave: {1},Length: {2} \r\n"
-                    , note.name, note.octave, note.length, player.controls.currentPosition);
+                    , note.name, note.octave, note.length, currentPlayedTime);
             addToNote(str);
             playForm.invokeNote(note);
         }

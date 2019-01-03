@@ -14,10 +14,11 @@ namespace bard_of_light {
         public static int windowWidth = (int)SystemParameters.PrimaryScreenWidth;
         public static int windowHeight = (int)SystemParameters.PrimaryScreenHeight - 300;
         public static int middlePosX = windowWidth / 2;
-        public static int frameTime = 1000/72;
-        public static int baseOctave = 4;
-        public static int blockMovingSpeed = 100;
-        public static int blockMaxHeight = 1000;
+        public static double frameTime = Math.Round(1000.0f/72,3);
+        public static int baseOctave = 3;
+        public static double blockMovingSpeed = 200;
+        public static double blockMaxHeight = windowHeight;
+        public static double playDelay = Math.Round(blockMaxHeight / blockMovingSpeed * 1000.0f, 3);
         public static Dictionary<string, Keys> userKeys = new Dictionary<string, Keys>()
         {
             {"C0", Keys.A},
